@@ -984,24 +984,47 @@ function saveNote(){
 }
 function exportNotes(){
   const entityName=entities.find(e=>e.id===activeEntityId)?.name||'Entity';
+  if(!Object.keys(notes).length){ showToast('⚠ No notes to export for this entity'); return; }
+  // Export just the flat {clientName: {text, updated}} object — simple, portable
   const b=new Blob([JSON.stringify(notes,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(b);const a=document.createElement('a');
-  a.href=u;a.download=`AR_Notes_${entityName.replace(/[^a-z0-9]/gi,'_')}_${reportDate.replace(/ /g,'_')}.json`;
-  a.click();URL.revokeObjectURL(u);
-  showToast('✓ Notes exported');
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u;
+  a.download=`AR_Notes_${entityName.replace(/[^a-z0-9]/gi,'_')}_${reportDate.replace(/ /g,'_')}.json`;
+  a.click();
+  URL.revokeObjectURL(u);
+  showToast('✓ Exported '+Object.keys(notes).length+' notes');
 }
 function importNotes(e){
-  const file=e.target.files[0];if(!file)return;
+  const file=e.target.files[0];
+  if(!file){ showToast('⚠ No file selected'); return; }
   const reader=new FileReader();
   reader.onload=function(ev){
     try{
       const imported=JSON.parse(ev.target.result);
-      notes={...notes,...imported};
-      saveNotes();renderTable();showToast('✓ Notes imported — '+Object.keys(imported).length+' entries merged');
-    }catch(err){showToast('⚠ Could not read notes file');}
+      // Validate it looks like a notes object (keys are strings, values have .text)
+      const entries=Object.entries(imported);
+      if(!entries.length){ showToast('⚠ Notes file appears empty'); return; }
+      const valid=entries.every(([k,v])=>typeof k==='string'&&(typeof v==='object'&&v.text||typeof v==='string'));
+      if(!valid){ showToast('⚠ File format not recognised — is this an AR Notes export?'); return; }
+      // Normalise: support both {clientName: {text,updated}} and legacy {clientName: "string"}
+      const normalised={};
+      entries.forEach(([k,v])=>{
+        normalised[k]=typeof v==='string'?{text:v,updated:'Imported'}:v;
+      });
+      notes={...notes,...normalised};
+      saveNotes();
+      renderTable();
+      showToast('✓ Notes imported — '+entries.length+' entries merged');
+    }catch(err){
+      showToast('⚠ Could not read notes file: '+err.message);
+    } finally {
+      // Reset input AFTER reader completes
+      e.target.value='';
+    }
   };
+  reader.onerror=function(){ showToast('⚠ Failed to read file'); e.target.value=''; };
   reader.readAsText(file);
-  e.target.value='';
 }
 
 // ===== FLAGS =====
