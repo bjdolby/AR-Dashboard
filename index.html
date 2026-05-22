@@ -344,7 +344,10 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
-    <div class="empty-state" id="emptyState" style="display:none">No clients match your current filter.</div>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;opacity:.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div>No data loaded — use <strong>⬆ Load Xero Export</strong> in the header to get started</div>
+    </div>
   </div>
 </div>
 
@@ -576,41 +579,7 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ===== DATA =====
-const EMBED = {reportDate:"31 May 2026",clients:[
-  {name:"Al Nayzak Organization",invoices:[{inv:"INV-0810",ref:"",invDate:"07 May 2026",dueDate:"06 Jun 2026",current:3000,lt1m:0,m1:0,m2:0,m3:0,older:0,total:3000,fx:false}]},
-  {name:"ANGLO CHINESE EDUCATION LTD",invoices:[{inv:"",ref:"",invDate:"16 Jun 2025",dueDate:"16 Jun 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:-385,total:-385,fx:false}]},
-  {name:"CodeMonkey Studios Ltd",invoices:[{inv:"INV-0815",ref:"INV-0513",invDate:"15 May 2026",dueDate:"15 Jun 2026",current:3500,lt1m:0,m1:0,m2:0,m3:0,older:0,total:3500,fx:false}]},
-  {name:"Codiplay Ltd.",invoices:[{inv:"INV-0661",ref:"INV-0661",invDate:"27 Jun 2025",dueDate:"15 Aug 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:3584.22,total:3584.22,fx:true}]},
-  {name:"COREnglish (EZclass contract)",invoices:[{inv:"INV-0643",ref:"INV-0643",invDate:"02 May 2025",dueDate:"02 Jun 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:2500,total:2500,fx:false}]},
-  {name:"CyberLabs LLP",invoices:[{inv:"INV-0666",ref:"INV-0666",invDate:"17 Jul 2025",dueDate:"17 Aug 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:3000,total:3000,fx:false}]},
-  {name:"Derventio Education Limited",invoices:[{inv:"INV-0814",ref:"",invDate:"07 May 2026",dueDate:"07 Jun 2026",current:2820,lt1m:0,m1:0,m2:0,m3:0,older:0,total:2820,fx:false}]},
-  {name:"Discovery Education",invoices:[{inv:"INV-0802",ref:"INV-0629",invDate:"08 Apr 2026",dueDate:"08 Apr 2026",current:0,lt1m:0,m1:5040,m2:0,m3:0,older:0,total:5040,fx:false}]},
-  {name:"Education Software Solutions Ltd, c/o ParentPay",invoices:[{inv:"INV-0674",ref:"PO: MF-75003",invDate:"25 Jul 2025",dueDate:"21 Aug 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:3594,total:3594,fx:false}]},
-  {name:"Globedock PLC",invoices:[{inv:"INV-0693",ref:"",invDate:"28 Aug 2025",dueDate:"28 Sep 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:2500,total:2500,fx:false}]},
-  {name:"ILT Education",invoices:[{inv:"INV-0638",ref:"",invDate:"16 Apr 2025",dueDate:"16 May 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:4800,total:4800,fx:false}]},
-  {name:"Juniper Education",invoices:[{inv:"INV-0817",ref:"",invDate:"15 May 2026",dueDate:"14 Jun 2026",current:7080,lt1m:0,m1:0,m2:0,m3:0,older:0,total:7080,fx:false}]},
-  {name:"Kaz Type Ltd",invoices:[{inv:"INV-0807",ref:"INV-0713",invDate:"05 May 2026",dueDate:"04 Jun 2026",current:298.5,lt1m:0,m1:0,m2:0,m3:0,older:0,total:298.5,fx:false}]},
-  {name:"Learning Labs Ltd",invoices:[{inv:"INV-0816",ref:"INV-0637",invDate:"15 May 2026",dueDate:"14 Jun 2026",current:2400,lt1m:0,m1:0,m2:0,m3:0,older:0,total:2400,fx:false}]},
-  {name:"NetSupport Ltd",invoices:[{inv:"INV-0813",ref:"INV-0628",invDate:"01 May 2026",dueDate:"31 May 2026",current:0,lt1m:4314,m1:0,m2:0,m3:0,older:0,total:4314,fx:false}]},
-  {name:"Northfield School & Sports College",invoices:[{inv:"INV-0605",ref:"INV-0605",invDate:"04 Mar 2026",dueDate:"01 Apr 2026",current:0,lt1m:0,m1:0,m2:3000,m3:0,older:0,total:3000,fx:false}]},
-  {name:"Novda Edutainment Limited Liability Company",invoices:[{inv:"INV-0811",ref:"0",invDate:"03 May 2026",dueDate:"03 May 2026",current:0,lt1m:4331.4,m1:0,m2:0,m3:0,older:0,total:4331.4,fx:true}]},
-  {name:"Open Development & Education Ltd",invoices:[{inv:"INV-0773",ref:"",invDate:"01 May 2026",dueDate:"01 Jun 2026",current:10440,lt1m:0,m1:0,m2:0,m3:0,older:0,total:10440,fx:false}]},
-  {name:"School Reviewer Limited T/A Olex.Ai",invoices:[
-    {inv:"INV-0729",ref:"INV-0729",invDate:"05 Nov 2025",dueDate:"05 Dec 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:250,total:250,fx:false},
-    {inv:"INV-0784",ref:"INV-0784",invDate:"05 Dec 2025",dueDate:"05 Jan 2026",current:0,lt1m:0,m1:0,m2:0,m3:0,older:250,total:250,fx:false},
-    {inv:"INV-0785",ref:"INV-0785",invDate:"05 Jan 2026",dueDate:"05 Feb 2026",current:0,lt1m:0,m1:0,m2:0,m3:250,older:0,total:250,fx:false},
-    {inv:"INV-0786",ref:"INV-0786",invDate:"05 Feb 2026",dueDate:"05 Mar 2026",current:0,lt1m:0,m1:0,m2:250,m3:0,older:0,total:250,fx:false},
-    {inv:"INV-0792",ref:"INV-0792",invDate:"05 Mar 2026",dueDate:"05 Apr 2026",current:0,lt1m:0,m1:250,m2:0,m3:0,older:0,total:250,fx:false},
-    {inv:"INV-0800",ref:"INV-0729",invDate:"05 Apr 2026",dueDate:"05 May 2026",current:0,lt1m:250,m1:0,m2:0,m3:0,older:0,total:250,fx:false},
-    {inv:"INV-0808",ref:"INV-0729",invDate:"05 May 2026",dueDate:"05 Jun 2026",current:250,lt1m:0,m1:0,m2:0,m3:0,older:0,total:250,fx:false}
-  ]},
-  {name:"Skool21",invoices:[{inv:"INV-0665",ref:"INV-0665",invDate:"10 Jul 2025",dueDate:"10 Aug 2025",current:0,lt1m:0,m1:0,m2:0,m3:0,older:3000,total:3000,fx:false}]},
-  {name:"Spellzone",invoices:[{inv:"INV-0806",ref:"INV-0728",invDate:"03 May 2026",dueDate:"03 Jun 2026",current:300,lt1m:0,m1:0,m2:0,m3:0,older:0,total:300,fx:false}]},
-  {name:"Squid Academy Limited",invoices:[{inv:"INV-0575",ref:"INV-0575",invDate:"19 Nov 2024",dueDate:"19 Dec 2024",current:0,lt1m:0,m1:0,m2:0,m3:0,older:600,total:600,fx:false}]},
-  {name:"St. Joseph's Institution International Elementary School LTD",invoices:[{inv:"INV-0617",ref:"INV-0617",invDate:"07 Mar 2026",dueDate:"07 Apr 2026",current:0,lt1m:0,m1:1222.79,m2:0,m3:0,older:0,total:1222.79,fx:true}]},
-  {name:"St. Joseph's Institution International Limited",invoices:[{inv:"INV-0620",ref:"INV-0620",invDate:"07 Mar 2026",dueDate:"07 Apr 2026",current:0,lt1m:0,m1:1222.79,m2:0,m3:0,older:0,total:1222.79,fx:true}]},
-  {name:"The Girls' Day School Trust",invoices:[{inv:"INV-0774",ref:"",invDate:"13 May 2026",dueDate:"13 Jun 2026",current:3978,lt1m:0,m1:0,m2:0,m3:0,older:0,total:3978,fx:false}]}
-]};
+const EMBED = {reportDate:'', clients:[]};
 
 // ===== DEFAULT TEMPLATES =====
 const DFLT = {
@@ -732,7 +701,8 @@ function toggleTheme(){
 function loadEntities(){
   try{ entities=JSON.parse(localStorage.getItem('ar_entities')||'null'); }catch(e){ entities=null; }
   if(!entities||!entities.length){
-    entities=[{id:'default',name:'EdTech Impact',reportDate:EMBED.reportDate,clients:EMBED.clients}];
+    // Fresh start — no embedded data, just an empty default entity
+    entities=[{id:'default',name:'EdTech Impact',reportDate:'',clients:[]}];
   }
   activeEntityId=localStorage.getItem('ar_active_entity')||entities[0].id;
   if(!entities.find(e=>e.id===activeEntityId)) activeEntityId=entities[0].id;
@@ -816,13 +786,16 @@ function switchEntityFromSettings(id){
 }
 
 function loadData(d){
-  reportDate=d.reportDate||'—';
-  document.getElementById('rptDate').textContent=reportDate;
+  reportDate=d.reportDate||'';
+  document.getElementById('rptDate').textContent=reportDate||'No data loaded';
   clients=(d.clients||[]).map(c=>{
     const a={current:0,lt1m:0,m1:0,m2:0,m3:0,older:0,total:0,hasFx:false};
     c.invoices.forEach(i=>{a.current+=i.current||0;a.lt1m+=i.lt1m||0;a.m1+=i.m1||0;a.m2+=i.m2||0;a.m3+=i.m3||0;a.older+=i.older||0;a.total+=i.total||0;if(i.fx)a.hasFx=true;});
     return{...c,...a};
   });
+  // Show upload zone prominently if no data
+  const uz=document.getElementById('uploadZone');
+  if(!clients.length && uz) uz.style.display='block';
   bucketFilter='all';
   document.getElementById('statusFilter').value='all';
   document.querySelectorAll('.stat-card').forEach(e=>e.classList.remove('active'));
@@ -915,7 +888,14 @@ function renderTable(){
   const list=getFilt();
   const tb=document.getElementById('tableBody');
   const em=document.getElementById('emptyState');
-  if(!list.length){tb.innerHTML='';em.style.display='block';return;}
+  if(!list.length){
+    tb.innerHTML='';
+    em.style.display='block';
+    em.innerHTML=clients.length===0
+      ?`<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;opacity:.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div>No data loaded — click <strong>⬆ Load Xero Export</strong> in the header to get started</div>`
+      :`<div>No clients match your current filter.</div>`;
+    return;
+  }
   em.style.display='none';
   let html='';
   list.forEach(c=>{
@@ -1395,7 +1375,19 @@ function parseXero(file){
         if(!first||/^Percentage/i.test(first))continue;
         if(/^Total /i.test(first))continue;
         const hasN=row.slice(4).some(v=>typeof v==='number');
-        if(!hasN){if(!['Aged Receivables','EdTech Impact','Ageing by','Invoice Date','[FX]','Exchange'].some(s=>first.includes(s))){cur={name:first,invoices:[]};parsed.clients.push(cur);}continue;}
+        if(!hasN){
+          // Skip any row that looks like a header, label or total
+          const skip=['Aged Receivables','Ageing by','Invoice Date','[FX]','Exchange','Report','Date','Period','Company','Trading','As at','Page'];
+          if(!skip.some(s=>first.toLowerCase().includes(s.toLowerCase()))&&!/^Total/i.test(first)){
+            // Only add if not already in list (prevents duplicates from re-upload)
+            if(!parsed.clients.find(c=>c.name===first)){
+              cur={name:first,invoices:[]};parsed.clients.push(cur);
+            } else {
+              cur=parsed.clients.find(c=>c.name===first);
+            }
+          }
+          continue;
+        }
         if(!cur)continue;
         const fx=[row[6],row[10],row[12]].some(v=>String(v||'').includes('[FX]'));
         cur.invoices.push({inv:String(row[2]||''),ref:String(row[3]||''),invDate:fmtDate(row[0]),dueDate:fmtDate(row[1]),current:+row[4]||0,lt1m:+row[5]||0,m1:+row[7]||0,m2:+row[9]||0,m3:+row[10]||0,older:+row[11]||0,total:+row[13]||0,fx});
