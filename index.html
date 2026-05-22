@@ -168,6 +168,17 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
 .toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 15px;border-radius:7px;font-size:12px;z-index:9999;animation:tIn .18s ease;display:flex;align-items:center;gap:7px;box-shadow:0 8px 24px var(--shadow)}
 @keyframes tIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 
+/* USERS */
+.user-avatar{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:9px;font-weight:700;flex-shrink:0;color:#fff;font-family:'JetBrains Mono',monospace}
+.user-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);white-space:nowrap}
+.assign-sel{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:3px 6px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:11px;outline:none;cursor:pointer;max-width:130px}
+.assign-sel:focus{border-color:var(--accent)}
+.user-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px}
+.user-item-info{flex:1;min-width:0}
+.user-item-name{font-size:13px;font-weight:500;display:flex;align-items:center}
+.user-item-meta{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.default-badge{font-size:9px;color:var(--accent);font-family:'JetBrains Mono',monospace;border:1px solid var(--accent);padding:1px 5px;border-radius:3px;margin-left:6px}
+
 /* ENTITY SWITCHER */
 .entity-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;transition:all .15s;white-space:nowrap}
 .entity-btn:hover{background:var(--surface2);color:var(--text2)}
@@ -304,6 +315,10 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
       <option value="none">No flag</option>
       <option id="flagFilterOpts"></option>
     </select>
+    <select class="fsel" id="userFilter" onchange="renderTable()">
+      <option value="all">All users</option>
+      <option value="unassigned">Unassigned</option>
+    </select>
     <select class="fsel" id="sortSelect" onchange="renderTable()">
       <option value="total-desc">Highest balance</option>
       <option value="total-asc">Lowest balance</option>
@@ -338,6 +353,7 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
           <th class="num">Total</th>
           <th>Ageing</th>
           <th>Action Flag</th>
+          <th>Assigned To</th>
           <th>Notes</th>
           <th>Email</th>
         </tr>
@@ -411,6 +427,7 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
         <button class="stab" onclick="switchStab('custom',this)">Custom</button>
         <button class="stab" onclick="switchStab('data',this)">Data & Export</button>
         <button class="stab" onclick="switchStab('entities',this)">Entities</button>
+        <button class="stab" onclick="switchStab('users',this)">Users</button>
         <button class="stab" onclick="switchStab('flags',this)">Flags</button>
         <button class="stab" onclick="switchStab('sync',this)">☁ Sync</button>
       </div>
@@ -450,19 +467,19 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
       </div>
 
       <div class="ssec" id="ssec-data">
-        <p style="font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.6">Export your notes as a JSON backup, or import notes previously exported.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.6">Export all notes, action flags and cashflow markers for this entity as a single JSON file. Import to restore them in a new session.</p>
         <div style="display:flex;flex-direction:column;gap:10px">
           <button class="btn btn-ghost" onclick="exportNotes()" style="justify-content:flex-start;gap:8px">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export Notes (JSON)
+            Export Notes, Flags & Cashflow
           </button>
-          <div style="font-size:11px;color:var(--text3)">Notes are also auto-saved to your browser. Export if you want a portable backup or to share between devices.</div>
+          <div style="font-size:11px;color:var(--text3)">Exports notes, action flags, and cashflow markers for the active entity. Use this to transfer work between browsers or share with a colleague.</div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:14px">
-            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Import Notes</div>
-            <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Select a previously exported JSON file. This will merge with your existing notes — existing notes for the same client will be overwritten.</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Import</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Select a previously exported file. Notes and flags are merged — existing entries for the same client will be overwritten.</div>
             <button class="btn btn-ghost" onclick="document.getElementById('notesImportInput').click()" style="justify-content:flex-start;gap:8px">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Import Notes from JSON
+              Import Notes, Flags & Cashflow
             </button>
             <input type="file" id="notesImportInput" accept=".json" style="display:none" onchange="importNotes(event)">
           </div>
@@ -477,6 +494,17 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
           <button class="btn btn-ghost btn-sm" onclick="addEntity()" style="white-space:nowrap">+ Add Entity</button>
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:8px">At least one entity must always remain. Use the Switch button to change which entity is active.</div>
+      </div>
+
+      <div class="ssec" id="ssec-users">
+        <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Add team members who can be assigned to client accounts. Only fill in the fields you want — name is required, everything else is optional. Set a default user to pre-select in the assignment dropdown.</p>
+        <div class="entity-list" id="userSettingsList"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:8px">
+          <div><div class="slbl" style="margin-top:0">Name *</div><input class="si" id="newUserName" placeholder="e.g. Sarah Jones"></div>
+          <div><div class="slbl" style="margin-top:0">Email</div><input class="si" id="newUserEmail" placeholder="sarah@company.com" type="email"></div>
+          <div><div class="slbl" style="margin-top:0">Role</div><input class="si" id="newUserRole" placeholder="e.g. Credit Controller"></div>
+          <button class="btn btn-ghost btn-sm" onclick="addUser()" style="white-space:nowrap;align-self:flex-end">+ Add</button>
+        </div>
       </div>
 
       <div class="ssec" id="ssec-flags">
@@ -871,6 +899,9 @@ function getFilt(){
     if(bucketFilter==='2m3m'&&(c.m2+c.m3)<=0)return false;
     if(bucketFilter==='older'&&c.older<=0)return false;
     if(sf!=='all'&&getStatus(c).key!==sf)return false;
+    const uf=document.getElementById('userFilter').value;
+    if(uf==='unassigned'&&assigned[c.name])return false;
+    if(uf!=='all'&&uf!=='unassigned'&&assigned[c.name]!==uf)return false;
     if(ff==='none'&&flags[c.name]&&flags[c.name].length)return false;
     if(ff!=='all'&&ff!=='none'&&!(flags[c.name]||[]).includes(ff))return false;
     return true;
@@ -921,6 +952,9 @@ function renderTable(){
       <td onclick="event.stopPropagation()" style="min-width:120px">
         <div style="display:flex;flex-wrap:wrap;gap:4px">${flagBadges}</div>
       </td>
+      <td onclick="event.stopPropagation()" style="min-width:110px">
+        ${users.length?buildAssignDropdown(c.name):`<span style="font-size:11px;color:var(--text3)">No users</span>`}
+      </td>
       <td onclick="event.stopPropagation()">
         <div style="display:flex;align-items:center;gap:6px">
           <div class="note-cell"><span class="${note?'note-txt':'note-nil'}" title="${note?he(note.text):''}">${note?he(note.text):'No note'}</span><button class="note-btn" onclick="openNote('${eid}')">${note?'Edit':'+ Add'}</button></div>
@@ -965,6 +999,7 @@ function noteKey(){return'ar_notes_'+(activeEntityId||'default');}
 function loadNotes(){
   try{notes=JSON.parse(localStorage.getItem(noteKey())||'{}');}catch(e){notes={};}
   loadFlags();
+  loadUsers();
 }function saveNotes(){try{localStorage.setItem(noteKey(),JSON.stringify(notes));}catch(e){}}
 function openNote(eid){
   const name=unEsc(eid);curNoteClient=name;
@@ -984,17 +1019,28 @@ function saveNote(){
 }
 function exportNotes(){
   const entityName=entities.find(e=>e.id===activeEntityId)?.name||'Entity';
-  if(!Object.keys(notes).length){ showToast('⚠ No notes to export for this entity'); return; }
-  // Export just the flat {clientName: {text, updated}} object — simple, portable
-  const b=new Blob([JSON.stringify(notes,null,2)],{type:'application/json'});
+  const hasNotes=Object.keys(notes).length>0;
+  const hasFlags=Object.keys(flags).length>0;
+  if(!hasNotes&&!hasFlags){ showToast('⚠ No notes or flags to export for this entity'); return; }
+  // Export everything in one portable file
+  const payload={
+    _version:1,
+    _entity:entityName,
+    _exportedAt:new Date().toISOString(),
+    notes,
+    flags,
+    assigned,
+  };
+  const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const u=URL.createObjectURL(b);
   const a=document.createElement('a');
   a.href=u;
-  a.download=`AR_Notes_${entityName.replace(/[^a-z0-9]/gi,'_')}_${reportDate.replace(/ /g,'_')}.json`;
+  a.download=`AR_ClientData_${entityName.replace(/[^a-z0-9]/gi,'_')}_${reportDate.replace(/ /g,'_')}.json`;
   a.click();
   URL.revokeObjectURL(u);
-  showToast('✓ Exported '+Object.keys(notes).length+' notes');
+  showToast(`✓ Exported ${Object.keys(notes).length} notes · ${Object.keys(flags).length} flags · ${Object.keys(assigned).length} assignments`);
 }
+
 function importNotes(e){
   const file=e.target.files[0];
   if(!file){ showToast('⚠ No file selected'); return; }
@@ -1002,24 +1048,46 @@ function importNotes(e){
   reader.onload=function(ev){
     try{
       const imported=JSON.parse(ev.target.result);
-      // Validate it looks like a notes object (keys are strings, values have .text)
+
+      // New format: has _version wrapper with notes + flags
+      if(imported._version===1){
+        if(imported.notes&&typeof imported.notes==='object'){
+          notes={...notes,...imported.notes};
+          saveNotes();
+        }
+        if(imported.flags&&typeof imported.flags==='object'){
+          Object.entries(imported.flags).forEach(([client,flagArr])=>{
+            flags[client]=Array.isArray(flagArr)?flagArr:[flagArr].filter(Boolean);
+          });
+          saveFlags();
+        }
+        if(imported.assigned&&typeof imported.assigned==='object'){
+          Object.entries(imported.assigned).forEach(([client,uid])=>{
+            if(users.find(u=>u.id===uid)) assigned[client]=uid;
+          });
+          saveAssigned();
+        }
+        const nc=Object.keys(imported.notes||{}).length;
+        const fc=Object.keys(imported.flags||{}).length;
+        const ac=Object.keys(imported.assigned||{}).length;
+        renderTable();
+        showToast(`✓ Imported ${nc} notes · ${fc} flags · ${ac} assignments`+(imported._entity?' from '+imported._entity:''));
+        return;
+      }
+
+      // Legacy format: flat {clientName: {text,updated}} notes-only file
       const entries=Object.entries(imported);
-      if(!entries.length){ showToast('⚠ Notes file appears empty'); return; }
-      const valid=entries.every(([k,v])=>typeof k==='string'&&(typeof v==='object'&&v.text||typeof v==='string'));
-      if(!valid){ showToast('⚠ File format not recognised — is this an AR Notes export?'); return; }
-      // Normalise: support both {clientName: {text,updated}} and legacy {clientName: "string"}
-      const normalised={};
-      entries.forEach(([k,v])=>{
-        normalised[k]=typeof v==='string'?{text:v,updated:'Imported'}:v;
-      });
-      notes={...notes,...normalised};
+      if(!entries.length){ showToast('⚠ File appears empty'); return; }
+      const looksLikeNotes=entries.every(([k,v])=>typeof k==='string'&&(typeof v==='object'&&v.text||typeof v==='string'));
+      if(!looksLikeNotes){ showToast('⚠ File format not recognised'); return; }
+      entries.forEach(([k,v])=>{ notes[k]=typeof v==='string'?{text:v,updated:'Imported'}:v; });
       saveNotes();
       renderTable();
-      showToast('✓ Notes imported — '+entries.length+' entries merged');
+      showToast('✓ Imported '+entries.length+' notes (legacy format — flags not included)');
+
     }catch(err){
-      showToast('⚠ Could not read notes file: '+err.message);
+      showToast('⚠ Could not read file: '+err.message);
     } finally {
-      // Reset input AFTER reader completes
       e.target.value='';
     }
   };
@@ -1051,6 +1119,7 @@ function loadFlags(){
   try{ flags=JSON.parse(localStorage.getItem(flagKey())||'{}'); }catch(e){ flags={}; }
   try{ cashflow=JSON.parse(localStorage.getItem(cashflowKey())||'{}'); }catch(e){ cashflow={}; }
   try{ customFlags=JSON.parse(localStorage.getItem(customFlagKey())||'[]'); }catch(e){ customFlags=[]; }
+  try{ assigned=JSON.parse(localStorage.getItem(userKey())||'{}'); }catch(e){ assigned={}; }
 }
 function saveFlags(){
   try{ localStorage.setItem(flagKey(), JSON.stringify(flags)); }catch(e){}
@@ -1541,13 +1610,14 @@ async function syncSet(payload){
 }
 
 function buildSyncPayload(){
-  const allNotes={}, allFlags={}, allCashflow={};
+  const allNotes={}, allFlags={}, allCashflow={}, allAssigned={};
   entities.forEach(en=>{
     try{ allNotes[en.id]=JSON.parse(localStorage.getItem('ar_notes_'+en.id)||'{}'); }catch(e){ allNotes[en.id]={}; }
     try{ allFlags[en.id]=JSON.parse(localStorage.getItem('ar_flags_'+en.id)||'{}'); }catch(e){ allFlags[en.id]={}; }
     try{ allCashflow[en.id]=JSON.parse(localStorage.getItem('ar_cashflow_'+en.id)||'{}'); }catch(e){ allCashflow[en.id]={}; }
+    try{ allAssigned[en.id]=JSON.parse(localStorage.getItem('ar_assigned_'+en.id)||'{}'); }catch(e){ allAssigned[en.id]={}; }
   });
-  return { entities, activeEntityId, allNotes, allFlags, allCashflow, customFlags, savedAt:Date.now() };
+  return { entities, activeEntityId, allNotes, allFlags, allCashflow, allAssigned, customFlags, users, defaultUserId, savedAt:Date.now() };
 }
 
 function applySyncPayload(data){
@@ -1572,6 +1642,13 @@ function applySyncPayload(data){
       try{ localStorage.setItem('ar_cashflow_'+eid, JSON.stringify(cf)); }catch(e){}
     });
   }
+  if(data.allAssigned){
+    Object.entries(data.allAssigned).forEach(([eid,a])=>{
+      try{ localStorage.setItem('ar_assigned_'+eid, JSON.stringify(a)); }catch(e){}
+    });
+  }
+  if(data.users){ users=data.users; saveUsers(); rebuildUserFilter(); }
+  if(data.defaultUserId!==undefined){ defaultUserId=data.defaultUserId; saveUsers(); }
   if(data.customFlags){
     customFlags=data.customFlags;
     saveCustomFlags();
@@ -1683,7 +1760,115 @@ function setFlag(flagId){
   showToast('✓ Flags cleared');
 }
 
-// ===== TEMPLATES + SETTINGS (single authoritative copy) =====
+// ===== USERS =====
+// users = [{id, name, email, role, color, isDefault}]
+// assigned = { clientName: userId } — per entity
+const USER_COLOURS=['#4fd1c5','#9f7aea','#48bb78','#ed8936','#63b3ed','#fc8181','#ecc94b','#f687b3','#68d391','#76e4f7'];
+let users=[];
+let assigned={}; // per entity
+let defaultUserId=null;
+
+function userKey(){ return 'ar_assigned_'+(activeEntityId||'default'); }
+function usersStorageKey(){ return 'ar_users'; } // global, like custom flags
+function defaultUserKey(){ return 'ar_default_user'; }
+
+function loadUsers(){
+  try{ users=JSON.parse(localStorage.getItem(usersStorageKey())||'[]'); }catch(e){ users=[]; }
+  try{ assigned=JSON.parse(localStorage.getItem(userKey())||'{}'); }catch(e){ assigned={}; }
+  try{ defaultUserId=localStorage.getItem(defaultUserKey())||null; }catch(e){ defaultUserId=null; }
+}
+function saveUsers(){
+  try{ localStorage.setItem(usersStorageKey(),JSON.stringify(users)); }catch(e){}
+  try{ if(defaultUserId) localStorage.setItem(defaultUserKey(),defaultUserId); else localStorage.removeItem(defaultUserKey()); }catch(e){}
+}
+function saveAssigned(){
+  try{ localStorage.setItem(userKey(),JSON.stringify(assigned)); }catch(e){}
+  markDirtyAndSchedulePush();
+}
+
+function getUserById(id){ return users.find(u=>u.id===id)||null; }
+function userInitials(u){ return u.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
+function userColour(u){ return u.color||USER_COLOURS[users.indexOf(u)%USER_COLOURS.length]; }
+
+function addUser(){
+  const name=document.getElementById('newUserName').value.trim();
+  const email=document.getElementById('newUserEmail').value.trim();
+  const role=document.getElementById('newUserRole').value.trim();
+  if(!name){ showToast('⚠ Name is required'); return; }
+  if(users.find(u=>u.name.toLowerCase()===name.toLowerCase())){ showToast('⚠ A user with that name already exists'); return; }
+  const id='usr_'+Date.now();
+  const color=USER_COLOURS[users.length%USER_COLOURS.length];
+  users.push({id,name,email,role,color});
+  document.getElementById('newUserName').value='';
+  document.getElementById('newUserEmail').value='';
+  document.getElementById('newUserRole').value='';
+  saveUsers();
+  renderUserSettingsList();
+  rebuildUserFilter();
+  showToast('✓ User added');
+}
+function deleteUser(id){
+  if(!confirm('Remove this user? They will be unassigned from all clients.')) return;
+  users=users.filter(u=>u.id!==id);
+  // Unassign from all clients
+  Object.keys(assigned).forEach(k=>{ if(assigned[k]===id) delete assigned[k]; });
+  if(defaultUserId===id) defaultUserId=null;
+  saveUsers(); saveAssigned();
+  renderUserSettingsList(); rebuildUserFilter(); renderTable();
+  showToast('✓ User removed');
+}
+function setDefaultUser(id){
+  defaultUserId=defaultUserId===id?null:id; // toggle
+  saveUsers();
+  renderUserSettingsList();
+  showToast(defaultUserId?'✓ Default user set':'✓ Default cleared');
+}
+function assignUser(clientName, userId){
+  if(userId==='') delete assigned[clientName];
+  else assigned[clientName]=userId;
+  saveAssigned();
+  renderTable();
+}
+
+function renderUserSettingsList(){
+  const el=document.getElementById('userSettingsList');
+  if(!el) return;
+  if(!users.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">No users added yet.</div>'; return; }
+  el.innerHTML=users.map(u=>{
+    const col=userColour(u);
+    const isDefault=defaultUserId===u.id;
+    const meta=[u.email,u.role].filter(Boolean).join(' · ');
+    return`<div class="user-item">
+      <div class="user-avatar" style="background:${col}">${userInitials(u)}</div>
+      <div class="user-item-info">
+        <div class="user-item-name">${he(u.name)}${isDefault?'<span class="default-badge">DEFAULT</span>':''}</div>
+        ${meta?`<div class="user-item-meta">${he(meta)}</div>`:''}
+      </div>
+      <button class="entity-btn" onclick="setDefaultUser('${u.id}')" style="font-size:10px;padding:3px 8px" title="${isDefault?'Clear default':'Set as default'}">${isDefault?'Clear default':'Set default'}</button>
+      <button class="entity-item-del" onclick="deleteUser('${u.id}')" title="Remove user">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function rebuildUserFilter(){
+  const sel=document.getElementById('userFilter');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML=`<option value="all">All users</option><option value="unassigned">Unassigned</option>`
+    +users.map(u=>`<option value="${u.id}">${he(u.name)}</option>`).join('');
+  // Try to restore previous selection
+  if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+  else sel.value='all';
+}
+
+function buildAssignDropdown(clientName){
+  const cur=assigned[clientName]||defaultUserId||'';
+  const opts=`<option value="">— Unassigned —</option>`
+    +users.map(u=>`<option value="${u.id}"${cur===u.id?' selected':''}>${he(u.name)}</option>`).join('');
+  return`<select class="assign-sel" onchange="assignUser('${he(clientName)}',this.value)" onclick="event.stopPropagation()">${opts}</select>`;
+}
+
+
 function loadTplsAndSig(){
   try{templates=JSON.parse(localStorage.getItem('ar_tpls')||'null')||JSON.parse(JSON.stringify(DFLT));}catch(e){templates=JSON.parse(JSON.stringify(DFLT));}
   try{sig=JSON.parse(localStorage.getItem('ar_sig')||'{}');}catch(e){sig={};}
@@ -1699,6 +1884,7 @@ function openSettings(){
   document.getElementById('syncTestResult').textContent='';
   renderEntitySettingsList();
   renderFlagSettingsList();
+  renderUserSettingsList();
   switchStab('sig',document.querySelector('.stab'));
   document.getElementById('settingsModal').classList.add('open');
 }
@@ -1755,6 +1941,7 @@ document.addEventListener('keydown',e=>{
 function init(){
   loadNotes();loadTplsAndSig();loadTheme();loadSyncConfig();loadEntities();
   rebuildFlagFilter();
+  rebuildUserFilter();
   if(syncEnabled()){
     startSyncTimer();
     forcePull().catch(()=>{});
