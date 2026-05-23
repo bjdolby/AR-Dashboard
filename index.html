@@ -1023,10 +1023,15 @@ function exportNotes(){
   const hasFlags=Object.keys(flags).length>0;
   if(!hasNotes&&!hasFlags){ showToast('⚠ No notes or flags to export for this entity'); return; }
   // Export everything in one portable file
+  // Build a label map: {flagId: label} so imports can remap by label even if IDs differ
+  const flagLabelMap={};
+  allFlags().forEach(f=>{ flagLabelMap[f.id]=f.label; });
+
   const payload={
-    _version:1,
+    _version:2,
     _entity:entityName,
     _exportedAt:new Date().toISOString(),
+    flagLabelMap, // { id: label } — used to remap custom flag IDs on import
     notes,
     flags,
     assigned,
@@ -1050,14 +1055,39 @@ function importNotes(e){
       const imported=JSON.parse(ev.target.result);
 
       // New format: has _version wrapper with notes + flags
-      if(imported._version===1){
+      if(imported._version===1||imported._version===2){
         if(imported.notes&&typeof imported.notes==='object'){
           notes={...notes,...imported.notes};
           saveNotes();
         }
         if(imported.flags&&typeof imported.flags==='object'){
+          // Build ID remap: exported flag ID → current session flag ID
+          // Uses flagLabelMap (v2) to match custom flags by label across sessions
+          const idRemap={};
+          const allF=allFlags();
+          const labelMap=imported.flagLabelMap||{};
+
+          // Collect all unique flag IDs in the export
+          const importedIds=[...new Set(Object.values(imported.flags).flat())];
+          importedIds.forEach(oldId=>{
+            if(allF.find(f=>f.id===oldId)){
+              idRemap[oldId]=oldId; // default flags: ID is stable, matches directly
+            } else {
+              // Custom flag: try to match by label from the export's label map
+              const exportedLabel=labelMap[oldId];
+              if(exportedLabel){
+                const match=allF.find(f=>f.label.toLowerCase()===exportedLabel.toLowerCase());
+                if(match) idRemap[oldId]=match.id;
+                // If no match found, the flag doesn't exist in this session — skip it
+              }
+            }
+          });
+
           Object.entries(imported.flags).forEach(([client,flagArr])=>{
-            flags[client]=Array.isArray(flagArr)?flagArr:[flagArr].filter(Boolean);
+            const arr=Array.isArray(flagArr)?flagArr:[flagArr].filter(Boolean);
+            const remapped=arr.map(id=>idRemap[id]).filter(Boolean); // only keep matched IDs
+            if(remapped.length) flags[client]=remapped;
+            else delete flags[client];
           });
           saveFlags();
         }
