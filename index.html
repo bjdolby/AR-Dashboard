@@ -234,7 +234,8 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
 .rtoggle{width:30px;height:17px;border-radius:9px;background:var(--surface3);border:1px solid var(--border2);position:relative;transition:background .2s;flex-shrink:0;cursor:pointer}
 .rtoggle.on{background:var(--accent)}
 .rtoggle::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .2s}
-.rtoggle.on::after{transform:translateX(13px)}
+input[type="date"].ei{color-scheme:dark}
+body.light input[type="date"].ei{color-scheme:light}
 
 /* EMAIL PREVIEW MODAL */
 .email-preview-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--text);line-height:1.5;max-height:420px;overflow-y:auto}
@@ -639,8 +640,12 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
           <button class="chase-method-btn" data-method="Letter" onclick="selectChaseMethod(this)">Letter</button>
           <button class="chase-method-btn" data-method="Other" onclick="selectChaseMethod(this)">Other</button>
         </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+          <label style="font-size:11px;color:var(--text3);white-space:nowrap;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.4px">Date</label>
+          <input type="date" id="chaseDateInput" class="ei" style="flex:1;padding:6px 10px;font-size:12px">
+        </div>
         <input type="text" id="chaseNoteInput" class="ei" placeholder="Optional note, e.g. left voicemail, sent final notice…" style="margin-bottom:8px">
-        <button class="btn btn-primary btn-sm" onclick="logChase()" style="width:100%;justify-content:center">✓ Log Chase — Today</button>
+        <button class="btn btn-primary btn-sm" onclick="logChase()" style="width:100%;justify-content:center">✓ Log Chase</button>
       </div>
       <!-- Chase history -->
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'JetBrains Mono',monospace">Chase history</div>
@@ -2035,8 +2040,10 @@ function saveGlobalChaseInterval(){
 
 function daysSinceChase(name){
   const log=chaseLog[name]; if(!log||!log.length) return null;
-  const last=new Date(log[log.length-1].date);
-  return Math.floor((new Date()-last)/(1000*60*60*24));
+  const last=log[log.length-1];
+  // Use dateISO if available (new format), fall back to display date string
+  const lastDate=last.dateISO?new Date(last.dateISO+'T12:00:00'):new Date(last.date);
+  return Math.floor((new Date()-lastDate)/(1000*60*60*24));
 }
 function isChaseOverdue(name){
   const cs=chaseSettings[name]||{};
@@ -2068,6 +2075,9 @@ function openChaseModal(eid){
   document.querySelectorAll('.chase-method-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('.chase-method-btn[data-method="Email"]').classList.add('active');
   document.getElementById('chaseNoteInput').value='';
+  // Default date to today
+  const todayISO=new Date().toISOString().split('T')[0];
+  document.getElementById('chaseDateInput').value=todayISO;
   renderChaseLog(name);
   document.getElementById('chaseModal').classList.add('open');
 }
@@ -2093,12 +2103,18 @@ function selectChaseMethod(btn){
 function logChase(){
   if(!curChaseClient) return;
   const note=document.getElementById('chaseNoteInput').value.trim();
-  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const dateISO=document.getElementById('chaseDateInput').value;
+  if(!dateISO){ showToast('⚠ Please select a date'); return; }
+  // Format date nicely for display (ISO → dd Mon yyyy)
+  const d=new Date(dateISO+'T12:00:00'); // noon to avoid timezone edge cases
+  const displayDate=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   if(!chaseLog[curChaseClient]) chaseLog[curChaseClient]=[];
-  chaseLog[curChaseClient].push({date:today,method:curChaseMethod,note});
+  // Insert in chronological order by date
+  chaseLog[curChaseClient].push({date:displayDate,dateISO,method:curChaseMethod,note});
+  chaseLog[curChaseClient].sort((a,b)=>new Date(a.dateISO||a.date)-new Date(b.dateISO||b.date));
   document.getElementById('chaseNoteInput').value='';
   saveChaseLog(); renderChaseLog(curChaseClient); renderTable(); renderChaseBanner();
-  showToast('✓ Chase logged — '+curChaseMethod);
+  showToast('✓ Chase logged — '+displayDate+' · '+curChaseMethod);
 }
 function deleteChaseEntry(eid,idx){
   const name=unEsc(eid);
