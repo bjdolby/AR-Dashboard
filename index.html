@@ -208,6 +208,34 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
 .copy-email-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;transition:all .15s;white-space:nowrap}
 .copy-email-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,209,197,.05)}
 
+/* CHASE REMINDERS */
+.chase-banner{background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.25);border-radius:9px;padding:12px 16px;margin-bottom:16px;display:none}
+.chase-banner-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.chase-banner-title{font-size:12px;font-weight:600;color:var(--red2);display:flex;align-items:center;gap:7px}
+.chase-banner-dismiss{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 4px;line-height:1}
+.chase-banner-dismiss:hover{color:var(--text)}
+.chase-banner-list{display:flex;flex-wrap:wrap;gap:6px}
+.chase-banner-item{background:rgba(229,62,62,.1);border:1px solid rgba(229,62,62,.3);color:var(--red2);padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.chase-banner-item:hover{background:rgba(229,62,62,.2)}
+.chase-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;cursor:pointer}
+.chase-badge.overdue{background:rgba(229,62,62,.15);color:var(--red2);border:1px solid rgba(229,62,62,.35)}
+.chase-badge.ok{background:rgba(72,187,120,.1);color:var(--green);border:1px solid rgba(72,187,120,.25)}
+.chase-badge.none{background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+.chase-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.chase-btn:hover{border-color:var(--orange);color:var(--orange)}
+.chase-method-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:4px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all .15s}
+.chase-method-btn:hover{border-color:var(--accent);color:var(--accent)}
+.chase-method-btn.active{background:var(--accent);color:var(--lc);border-color:var(--accent);font-weight:600}
+.chase-log-entry{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px}
+.chase-log-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);flex-shrink:0;min-width:90px}
+.chase-log-method{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.4px;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.chase-log-note{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reminder-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);cursor:pointer;user-select:none}
+.rtoggle{width:30px;height:17px;border-radius:9px;background:var(--surface3);border:1px solid var(--border2);position:relative;transition:background .2s;flex-shrink:0;cursor:pointer}
+.rtoggle.on{background:var(--accent)}
+.rtoggle::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .2s}
+.rtoggle.on::after{transform:translateX(13px)}
+
 /* EMAIL PREVIEW MODAL */
 .email-preview-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--text);line-height:1.5;max-height:420px;overflow-y:auto}
 .email-preview-wrap table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
@@ -296,6 +324,17 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
     </div>
   </div>
 
+  <div id="chaseBanner" class="chase-banner">
+    <div class="chase-banner-hdr">
+      <div class="chase-banner-title">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="chaseBannerTitle">Chase reminders overdue</span>
+      </div>
+      <button class="chase-banner-dismiss" onclick="dismissChaseBanner()" title="Dismiss until next load">✕</button>
+    </div>
+    <div class="chase-banner-list" id="chaseBannerList"></div>
+  </div>
+
   <div class="toolbar">
     <div class="search-wrap">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -353,6 +392,7 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
           <th class="num">Total</th>
           <th>Ageing</th>
           <th>Action Flag</th>
+          <th>Last Chased</th>
           <th>Assigned To</th>
           <th>Notes</th>
           <th>Email</th>
@@ -429,6 +469,7 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
         <button class="stab" onclick="switchStab('entities',this)">Entities</button>
         <button class="stab" onclick="switchStab('users',this)">Users</button>
         <button class="stab" onclick="switchStab('flags',this)">Flags</button>
+        <button class="stab" onclick="switchStab('chase',this)">Chase</button>
         <button class="stab" onclick="switchStab('sync',this)">☁ Sync</button>
       </div>
 
@@ -507,6 +548,17 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
         </div>
       </div>
 
+      <div class="ssec" id="ssec-chase">
+        <p style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6">Set the global default chase interval. You can override this per client in the chase log. Clients flagged as <strong>Debt Collection</strong> will never trigger chase reminders regardless of their setting.</p>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:7px">
+          <span style="font-size:13px;color:var(--text2);flex:1">Default chase reminder interval</span>
+          <input type="number" id="globalChaseInterval" min="1" max="90" value="8" style="width:60px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:6px 9px;border-radius:5px;font-size:13px;outline:none;text-align:center">
+          <span style="font-size:13px;color:var(--text2)">days</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">Reminders only fire for clients with reminders switched on in their chase log. Clients in Debt Collection are always exempt.</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="saveGlobalChaseFromSettings()">Save default interval</button>
+      </div>
+
       <div class="ssec" id="ssec-flags">
         <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Manage the action flags available on each client row. Six defaults are provided — add your own below. Each flag has a label and a colour.</p>
         <div class="entity-list" id="flagSettingsList"></div>
@@ -554,6 +606,46 @@ textarea.si{min-height:190px;resize:vertical;line-height:1.65;font-size:12px;fon
       </div>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('settingsModal')">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHASE LOG MODAL -->
+<div class="modal-overlay" id="chaseModal">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr">
+      <div><div class="mtitle">Chase Log</div><div class="msub" id="chaseModalSub"></div></div>
+      <button class="mclose" onclick="closeModal('chaseModal')">✕</button>
+    </div>
+    <div class="mbody">
+      <!-- Reminder toggle + interval -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:16px">
+        <label class="reminder-toggle" onclick="toggleChaseReminder()">
+          <div class="rtoggle" id="chaseReminderToggle"></div>
+          <span>Chase reminder active</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)">
+          <span>Every</span>
+          <input type="number" id="chaseIntervalInput" min="1" max="90" style="width:50px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:4px 7px;border-radius:5px;font-size:12px;outline:none;text-align:center" oninput="saveChaseInterval()">
+          <span>days</span>
+        </div>
+      </div>
+      <!-- Log new chase -->
+      <div style="margin-bottom:16px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:7px">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-family:'JetBrains Mono',monospace">Log a chase</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <button class="chase-method-btn active" data-method="Email" onclick="selectChaseMethod(this)">Email</button>
+          <button class="chase-method-btn" data-method="Phone" onclick="selectChaseMethod(this)">Phone</button>
+          <button class="chase-method-btn" data-method="Letter" onclick="selectChaseMethod(this)">Letter</button>
+          <button class="chase-method-btn" data-method="Other" onclick="selectChaseMethod(this)">Other</button>
+        </div>
+        <input type="text" id="chaseNoteInput" class="ei" placeholder="Optional note, e.g. left voicemail, sent final notice…" style="margin-bottom:8px">
+        <button class="btn btn-primary btn-sm" onclick="logChase()" style="width:100%;justify-content:center">✓ Log Chase — Today</button>
+      </div>
+      <!-- Chase history -->
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'JetBrains Mono',monospace">Chase history</div>
+      <div id="chaseLogList" style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto"></div>
+      <div id="chaseLogEmpty" style="font-size:12px;color:var(--text3);text-align:center;padding:16px 0;display:none">No chases logged yet.</div>
     </div>
   </div>
 </div>
@@ -952,6 +1044,7 @@ function renderTable(){
       <td onclick="event.stopPropagation()" style="min-width:120px">
         <div style="display:flex;flex-wrap:wrap;gap:4px">${flagBadges}</div>
       </td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">${getChaseBadgeHtml(c.name,eid)}</td>
       <td onclick="event.stopPropagation()" style="min-width:110px">
         ${users.length?buildAssignDropdown(c.name):`<span style="font-size:11px;color:var(--text3)">No users</span>`}
       </td>
@@ -990,6 +1083,7 @@ function renderTable(){
     }
   });
   tb.innerHTML=html;
+  renderChaseBanner();
 }
 
 function toggleX(eid){const name=unEsc(eid);expanded[name]=!expanded[name];renderTable();}
@@ -998,8 +1092,7 @@ function toggleX(eid){const name=unEsc(eid);expanded[name]=!expanded[name];rende
 function noteKey(){return'ar_notes_'+(activeEntityId||'default');}
 function loadNotes(){
   try{notes=JSON.parse(localStorage.getItem(noteKey())||'{}');}catch(e){notes={};}
-  loadFlags();
-  loadUsers();
+  loadFlags(); loadUsers(); loadChase();
 }function saveNotes(){try{localStorage.setItem(noteKey(),JSON.stringify(notes));}catch(e){}}
 function openNote(eid){
   const name=unEsc(eid);curNoteClient=name;
@@ -1640,14 +1733,16 @@ async function syncSet(payload){
 }
 
 function buildSyncPayload(){
-  const allNotes={}, allFlags={}, allCashflow={}, allAssigned={};
+  const allNotes={},allFlags={},allCashflow={},allAssigned={},allChaseLog={},allChaseSettings={};
   entities.forEach(en=>{
     try{ allNotes[en.id]=JSON.parse(localStorage.getItem('ar_notes_'+en.id)||'{}'); }catch(e){ allNotes[en.id]={}; }
     try{ allFlags[en.id]=JSON.parse(localStorage.getItem('ar_flags_'+en.id)||'{}'); }catch(e){ allFlags[en.id]={}; }
     try{ allCashflow[en.id]=JSON.parse(localStorage.getItem('ar_cashflow_'+en.id)||'{}'); }catch(e){ allCashflow[en.id]={}; }
     try{ allAssigned[en.id]=JSON.parse(localStorage.getItem('ar_assigned_'+en.id)||'{}'); }catch(e){ allAssigned[en.id]={}; }
+    try{ allChaseLog[en.id]=JSON.parse(localStorage.getItem('ar_chase_'+en.id)||'{}'); }catch(e){ allChaseLog[en.id]={}; }
+    try{ allChaseSettings[en.id]=JSON.parse(localStorage.getItem('ar_chase_settings_'+en.id)||'{}'); }catch(e){ allChaseSettings[en.id]={}; }
   });
-  return { entities, activeEntityId, allNotes, allFlags, allCashflow, allAssigned, customFlags, users, defaultUserId, savedAt:Date.now() };
+  return{entities,activeEntityId,allNotes,allFlags,allCashflow,allAssigned,allChaseLog,allChaseSettings,customFlags,users,defaultUserId,globalChaseIntervalDays,savedAt:Date.now()};
 }
 
 function applySyncPayload(data){
@@ -1671,6 +1766,20 @@ function applySyncPayload(data){
     Object.entries(data.allCashflow).forEach(([eid,cf])=>{
       try{ localStorage.setItem('ar_cashflow_'+eid, JSON.stringify(cf)); }catch(e){}
     });
+  }
+  if(data.allChaseLog){
+    Object.entries(data.allChaseLog).forEach(([eid,cl])=>{
+      try{ localStorage.setItem('ar_chase_'+eid,JSON.stringify(cl)); }catch(e){}
+    });
+  }
+  if(data.allChaseSettings){
+    Object.entries(data.allChaseSettings).forEach(([eid,cs])=>{
+      try{ localStorage.setItem('ar_chase_settings_'+eid,JSON.stringify(cs)); }catch(e){}
+    });
+  }
+  if(data.globalChaseIntervalDays){
+    globalChaseIntervalDays=data.globalChaseIntervalDays;
+    saveGlobalChaseInterval();
   }
   if(data.allAssigned){
     Object.entries(data.allAssigned).forEach(([eid,a])=>{
@@ -1899,6 +2008,144 @@ function buildAssignDropdown(clientName){
 }
 
 
+// ===== CHASE SYSTEM =====
+let chaseLog={}, chaseSettings={}, globalChaseIntervalDays=8;
+let curChaseClient=null, curChaseMethod='Email', chaseBannerDismissed=false;
+
+function chaseLogKey(){ return 'ar_chase_'+(activeEntityId||'default'); }
+function chaseSettingsKey(){ return 'ar_chase_settings_'+(activeEntityId||'default'); }
+function globalChaseKey(){ return 'ar_chase_global'; }
+
+function loadChase(){
+  try{ chaseLog=JSON.parse(localStorage.getItem(chaseLogKey())||'{}'); }catch(e){ chaseLog={}; }
+  try{ chaseSettings=JSON.parse(localStorage.getItem(chaseSettingsKey())||'{}'); }catch(e){ chaseSettings={}; }
+  try{ globalChaseIntervalDays=parseInt(localStorage.getItem(globalChaseKey())||'8'); }catch(e){ globalChaseIntervalDays=8; }
+}
+function saveChaseLog(){
+  try{ localStorage.setItem(chaseLogKey(),JSON.stringify(chaseLog)); }catch(e){}
+  markDirtyAndSchedulePush();
+}
+function saveChaseSettings(){
+  try{ localStorage.setItem(chaseSettingsKey(),JSON.stringify(chaseSettings)); }catch(e){}
+  markDirtyAndSchedulePush();
+}
+function saveGlobalChaseInterval(){
+  try{ localStorage.setItem(globalChaseKey(),String(globalChaseIntervalDays)); }catch(e){}
+}
+
+function daysSinceChase(name){
+  const log=chaseLog[name]; if(!log||!log.length) return null;
+  const last=new Date(log[log.length-1].date);
+  return Math.floor((new Date()-last)/(1000*60*60*24));
+}
+function isChaseOverdue(name){
+  const cs=chaseSettings[name]||{};
+  if(!cs.reminder) return false;
+  if((flags[name]||[]).includes('debt')) return false; // debt collection exempt
+  const interval=cs.interval||globalChaseIntervalDays;
+  const days=daysSinceChase(name);
+  return days===null||days>=interval;
+}
+
+function getChaseBadgeHtml(name,eid){
+  const cs=chaseSettings[name]||{};
+  const days=daysSinceChase(name);
+  const overdue=isChaseOverdue(name);
+  if(!cs.reminder&&days===null){
+    return`<button class="chase-btn" onclick="event.stopPropagation();openChaseModal('${eid}')"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Log</button>`;
+  }
+  const label=days===null?'Never':days===0?'Today':days+'d ago';
+  const cls=overdue?'overdue':cs.reminder?'ok':'none';
+  return`<span class="chase-badge ${cls}" onclick="event.stopPropagation();openChaseModal('${eid}')">${overdue?'⚠ ':''}${label}</span>`;
+}
+
+function openChaseModal(eid){
+  const name=unEsc(eid); curChaseClient=name; curChaseMethod='Email';
+  document.getElementById('chaseModalSub').textContent=name;
+  const cs=chaseSettings[name]||{};
+  document.getElementById('chaseReminderToggle').className='rtoggle'+(cs.reminder?' on':'');
+  document.getElementById('chaseIntervalInput').value=cs.interval||globalChaseIntervalDays;
+  document.querySelectorAll('.chase-method-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.chase-method-btn[data-method="Email"]').classList.add('active');
+  document.getElementById('chaseNoteInput').value='';
+  renderChaseLog(name);
+  document.getElementById('chaseModal').classList.add('open');
+}
+function renderChaseLog(name){
+  const log=(chaseLog[name]||[]).slice().reverse();
+  const list=document.getElementById('chaseLogList');
+  const empty=document.getElementById('chaseLogEmpty');
+  if(!log.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const mc={Email:'#63b3ed',Phone:'#48bb78',Letter:'#ecc94b',Other:'#9f7aea'};
+  list.innerHTML=log.map((e,i)=>`
+    <div class="chase-log-entry">
+      <span class="chase-log-date">${e.date}</span>
+      <span class="chase-log-method" style="background:${mc[e.method]||'#9f7aea'}22;color:${mc[e.method]||'#9f7aea'}">${e.method}</span>
+      <span class="chase-log-note" title="${he(e.note||'')}">${he(e.note||'—')}</span>
+      <button class="entity-item-del" onclick="deleteChaseEntry('${escId(name)}',${log.length-1-i})" title="Delete">✕</button>
+    </div>`).join('');
+}
+function selectChaseMethod(btn){
+  document.querySelectorAll('.chase-method-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); curChaseMethod=btn.dataset.method;
+}
+function logChase(){
+  if(!curChaseClient) return;
+  const note=document.getElementById('chaseNoteInput').value.trim();
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  if(!chaseLog[curChaseClient]) chaseLog[curChaseClient]=[];
+  chaseLog[curChaseClient].push({date:today,method:curChaseMethod,note});
+  document.getElementById('chaseNoteInput').value='';
+  saveChaseLog(); renderChaseLog(curChaseClient); renderTable(); renderChaseBanner();
+  showToast('✓ Chase logged — '+curChaseMethod);
+}
+function deleteChaseEntry(eid,idx){
+  const name=unEsc(eid);
+  if(!chaseLog[name]) return;
+  chaseLog[name].splice(idx,1);
+  if(!chaseLog[name].length) delete chaseLog[name];
+  saveChaseLog(); renderChaseLog(name); renderTable(); renderChaseBanner();
+}
+function toggleChaseReminder(){
+  if(!curChaseClient) return;
+  if(!chaseSettings[curChaseClient]) chaseSettings[curChaseClient]={};
+  const cs=chaseSettings[curChaseClient];
+  cs.reminder=!cs.reminder;
+  document.getElementById('chaseReminderToggle').className='rtoggle'+(cs.reminder?' on':'');
+  saveChaseSettings(); renderTable(); renderChaseBanner();
+  showToast(cs.reminder?'✓ Reminder activated':'✓ Reminder deactivated');
+}
+function saveChaseInterval(){
+  if(!curChaseClient) return;
+  const val=parseInt(document.getElementById('chaseIntervalInput').value)||globalChaseIntervalDays;
+  if(!chaseSettings[curChaseClient]) chaseSettings[curChaseClient]={};
+  chaseSettings[curChaseClient].interval=val;
+  saveChaseSettings();
+}
+function renderChaseBanner(){
+  if(chaseBannerDismissed) return;
+  const overdue=clients.filter(c=>isChaseOverdue(c.name));
+  const banner=document.getElementById('chaseBanner');
+  if(!overdue.length){ banner.style.display='none'; return; }
+  banner.style.display='block';
+  document.getElementById('chaseBannerTitle').textContent=
+    `${overdue.length} client${overdue.length===1?'':' s'} overdue for chasing`;
+  document.getElementById('chaseBannerList').innerHTML=overdue.map(c=>{
+    const days=daysSinceChase(c.name);
+    return`<span class="chase-banner-item" onclick="openChaseModal('${escId(c.name)}')">${he(c.name)} — ${days===null?'never chased':days+'d ago'}</span>`;
+  }).join('');
+}
+function dismissChaseBanner(){
+  chaseBannerDismissed=true;
+  document.getElementById('chaseBanner').style.display='none';
+}
+function saveGlobalChaseFromSettings(){
+  const val=parseInt(document.getElementById('globalChaseInterval').value)||8;
+  globalChaseIntervalDays=val; saveGlobalChaseInterval();
+  showToast('✓ Default interval updated to '+val+' days');
+}
+
 function loadTplsAndSig(){
   try{templates=JSON.parse(localStorage.getItem('ar_tpls')||'null')||JSON.parse(JSON.stringify(DFLT));}catch(e){templates=JSON.parse(JSON.stringify(DFLT));}
   try{sig=JSON.parse(localStorage.getItem('ar_sig')||'{}');}catch(e){sig={};}
@@ -1911,6 +2158,8 @@ function openSettings(){
   });
   const su=document.getElementById('sync-url');const sk=document.getElementById('sync-key');
   if(su)su.value=syncUrl||'';if(sk)sk.value=syncKey||'';
+  const gci=document.getElementById('globalChaseInterval');
+  if(gci) gci.value=globalChaseIntervalDays;
   document.getElementById('syncTestResult').textContent='';
   renderEntitySettingsList();
   renderFlagSettingsList();
@@ -1970,8 +2219,7 @@ document.addEventListener('keydown',e=>{
 
 function init(){
   loadNotes();loadTplsAndSig();loadTheme();loadSyncConfig();loadEntities();
-  rebuildFlagFilter();
-  rebuildUserFilter();
+  rebuildFlagFilter(); rebuildUserFilter();
   if(syncEnabled()){
     startSyncTimer();
     forcePull().catch(()=>{});
